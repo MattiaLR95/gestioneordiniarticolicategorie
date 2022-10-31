@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.ordine.OrdineDAO;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 
@@ -147,6 +148,80 @@ public class OrdineServiceImpl implements OrdineService {
 	@Override
 	public void setOrdineDAO(OrdineDAO ordineDAO) {
 		this.ordineDAO = ordineDAO;
+	}
+
+	@Override
+	public List<Ordine> trovaOrdiniInUnaDeterminataCategoria(Categoria input) {
+		// questo è come una connection
+				EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+				try {
+					// uso l'injection per il dao
+					ordineDAO.setEntityManager(entityManager);
+
+					// eseguo quello che realmente devo fare
+					return ordineDAO.findOrdiniInUnaDeterminataCategoria(input);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw e;
+				} finally {
+					EntityManagerUtil.closeEntityManager(entityManager);
+				}
+	}
+
+	@Override
+	public Ordine trovaOrdineSpedizionePiuRecenteRelativoACategoria(Categoria categoria) throws Exception {
+		// questo è come una connection
+				EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+				try {
+					// uso l'injection per il dao
+					ordineDAO.setEntityManager(entityManager);
+
+					// eseguo quello che realmente devo fare
+					return ordineDAO.findOrdineSpedizionePiuRecenteRelativoACategoria(categoria);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw e;
+				} finally {
+					EntityManagerUtil.closeEntityManager(entityManager);
+				}
+	}
+
+	@Override
+	public Long caricaPrezzoTotaleArticoliOrdiniPer(String destinatario) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			ordineDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return ordineDAO.getPrezzoTotaleArticoliOrdiniPer(destinatario);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<String> tuttiIndirizziOrdiniArticoliConNumeroSerialeCome(String parteDelSeriale) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			ordineDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return ordineDAO.allIndirizziOrdiniArticoliConNumeroSerialeCome(parteDelSeriale);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }

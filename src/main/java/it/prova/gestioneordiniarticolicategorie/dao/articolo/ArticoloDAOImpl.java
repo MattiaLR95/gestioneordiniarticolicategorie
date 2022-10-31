@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public class ArticoloDAOImpl implements ArticoloDAO {
 
@@ -62,6 +63,24 @@ public class ArticoloDAOImpl implements ArticoloDAO {
 	public void deleteArticoloFromJoinTable(Long idArticolo) throws Exception {
 		entityManager.createNativeQuery("delete from articolo_categoria where articolo_id = ?1")
 				.setParameter(1, idArticolo).executeUpdate();
+	}
+
+	@Override
+	public Long totalePrezzoArticoliDiCategoria(Categoria categoria) throws Exception {
+		if (categoria == null || categoria.getId() == null || categoria.getId() < 1)
+			throw new Exception("Impossibile effettuare la ricerca, input errato");
+		return entityManager
+				.createQuery("select sum(a.prezzoSingolo) from Categoria c left join c.articoli a where c.id=?1",
+						Long.class)
+				.setParameter(1, categoria.getId()).getResultStream().findFirst().orElse(null);
+	}
+
+	@Override
+	public List<Articolo> allArticoliDiOrdiniConProblemi() throws Exception {
+		return entityManager
+				.createQuery("select a from Ordine o inner join o.articoli a where o.dataSpedizione > o.dataScadenza",
+						Articolo.class)
+				.getResultList();
 	}
 
 }

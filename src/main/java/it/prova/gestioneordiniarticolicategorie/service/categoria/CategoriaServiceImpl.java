@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.service.categoria;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,6 +9,7 @@ import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.categoria.CategoriaDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class CategoriaServiceImpl implements CategoriaService {
 
@@ -201,6 +203,46 @@ public class CategoriaServiceImpl implements CategoriaService {
 		} finally {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
+	}
+
+	@Override
+	public List<Categoria> TutteCategorieInOrdine(Ordine ordine) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			categoriaDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return categoriaDAO.allCategorieInOrdine(ordine);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
+	@Override
+	public List<String> tuttiCodiciDiCategorieDegliOrdiniEffettuatiNelMeseDi(Date dataDiRiferimento) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			categoriaDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return categoriaDAO.allCodiciDiCategorieDegliOrdiniEffettuatiNelMeseDi(dataDiRiferimento);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
 	}
 
 }

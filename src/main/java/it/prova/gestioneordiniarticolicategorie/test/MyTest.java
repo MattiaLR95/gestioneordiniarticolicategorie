@@ -57,6 +57,29 @@ public class MyTest {
 			
 			testRimozioneOrdine(ordineServiceInstance);
 			System.out.println();
+			
+			testTuttiOrdiniInDeterminataCategoria(ordineServiceInstance, categoriaServiceInstance, articoloServiceInstance);
+			System.out.println();
+			
+			testTutteCategorieInOrdine(ordineServiceInstance, categoriaServiceInstance, articoloServiceInstance);
+			System.out.println();
+			
+			testSommaPrezzoArticoliDiCategoria(ordineServiceInstance, categoriaServiceInstance, articoloServiceInstance);
+			System.out.println();
+			
+			testOrdinePiuRecenteConArticoliDiCategoria(categoriaServiceInstance, articoloServiceInstance ,ordineServiceInstance);
+			System.out.println();
+			
+			testTuttiCodiciDiCategorieDegliOrdiniDelMeseDi(categoriaServiceInstance, ordineServiceInstance);
+			System.out.println();
+			
+			testPrezzoTotaleArticoliOrdiniPer(ordineServiceInstance, articoloServiceInstance);
+			System.out.println();
+			
+			testTuttiIndirizziOrdiniConArticoliConNumeroSerialeCome(ordineServiceInstance, articoloServiceInstance);
+			System.out.println();
+			
+			testListaArticoliOrdiniConErrori(articoloServiceInstance, ordineServiceInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -264,6 +287,152 @@ public class MyTest {
 		else
 			throw new RuntimeException("Attenzione! L'ordine selezionato contiene articoli all'interno.");
 		System.out.println("Test rimozioneOrdine: COMPLETATO");
+	}
+	
+	private static void testTuttiOrdiniInDeterminataCategoria(OrdineService ordineService,
+			CategoriaService categoriaService, ArticoloService articoloService) throws Exception {
+		System.out.println("\n.....inizio testTuttiOrdiniConArticoliDiCategoria");
+		List<Articolo> tuttiArticoliSuDB = articoloService.listAll();
+		List<Categoria> tutteCategorieSuDB = categoriaService.listAll();
+		List<Ordine> tuttiOrdiniSuDB = ordineService.listAll();
+		if (tuttiOrdiniSuDB.isEmpty() || tutteCategorieSuDB.isEmpty() || tuttiArticoliSuDB.isEmpty())
+			throw new RuntimeException("FAIL : una o piu' tabelle del DB sono vuote.");
+		List<Ordine> result = ordineService.trovaOrdiniInUnaDeterminataCategoria(tutteCategorieSuDB.get(1));
+		if (result.isEmpty())
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testTuttiOrdiniConArticoliDiCategoria : PASS");
+	}
+
+	private static void testTutteCategorieInOrdine(OrdineService ordineService,
+			CategoriaService categoriaService, ArticoloService articoloService) throws Exception {
+		System.out.println("\n.....inizio testTutteCategorieDistinteNellOrdine");
+		
+		Ordine nuovoOrdine = new Ordine("Mattia", "Via Catania", new Date(),
+				new SimpleDateFormat("dd-mm-yyyy").parse("30-10-2022"));
+		ordineService.inserisciNuovo(nuovoOrdine);
+		
+		Articolo nuovoArticolo = new Articolo("Reflex", "abc", 600, new Date());
+		nuovoArticolo.setOrdine(nuovoOrdine);
+		articoloService.inserisciNuovo(nuovoArticolo);
+		
+		Categoria nuovaCategoria = new Categoria("Fotocamera", "Wf45612");
+		categoriaService.inserisciNuovo(nuovaCategoria);
+		articoloService.aggiungiCategoria(nuovoArticolo, nuovaCategoria);
+		
+		List<Categoria> result = categoriaService.TutteCategorieInOrdine(nuovoOrdine);
+		if (result.size() != 1)
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testTutteCategorieDistinteNellOrdine : PASS");
+	}
+
+	private static void testSommaPrezzoArticoliDiCategoria(OrdineService ordineService,CategoriaService categoriaService,
+			ArticoloService articoloService) throws Exception {
+		System.out.println("\n.....inizio testSommaPrezzoArticoliDiCategoria");
+		
+		Ordine nuovoOrdine = new Ordine("Mattia", "Via Catania", new Date(),
+				new SimpleDateFormat("dd-mm-yyyy").parse("30-10-2022"));
+		ordineService.inserisciNuovo(nuovoOrdine);
+		
+		Articolo nuovoArticolo = new Articolo("Reflex", "abc", 600, new Date());
+		nuovoArticolo.setOrdine(nuovoOrdine);
+		articoloService.inserisciNuovo(nuovoArticolo);
+		
+		Categoria nuovaCategoria = new Categoria("Fotocamera", "Wf45612");
+		categoriaService.inserisciNuovo(nuovaCategoria);
+		articoloService.aggiungiCategoria(nuovoArticolo, nuovaCategoria);
+		
+		Long result = articoloService.sommaPrezzoArticoliDiCategoria(nuovaCategoria);
+		if (result != nuovoArticolo.getPrezzoSingolo())
+			throw new RuntimeException("FAIL : la somma dei prezzi non e' corretta.");
+		System.out.println("..... fine testSommaPrezzoArticoliDiCategoria : PASS");
+	}
+
+	private static void testOrdinePiuRecenteConArticoliDiCategoria(CategoriaService categoriaService, ArticoloService articoloService ,
+			OrdineService ordineService) throws Exception {
+		System.out.println("\n.....inizio testOrdinePiuRecenteConArticoliDiCategoria");
+		
+		Ordine nuovoOrdine = new Ordine("Mattia", "Via Catania", new Date(),
+				new SimpleDateFormat("dd-mm-yyyy").parse("30-10-2022"));
+		ordineService.inserisciNuovo(nuovoOrdine);
+		
+		Articolo nuovoArticolo = new Articolo("Reflex", "abc", 600, new Date());
+		nuovoArticolo.setOrdine(nuovoOrdine);
+		articoloService.inserisciNuovo(nuovoArticolo);
+		
+		Categoria nuovaCategoria = new Categoria("Fotocamera", "Wf45612");
+		categoriaService.inserisciNuovo(nuovaCategoria);
+		articoloService.aggiungiCategoria(nuovoArticolo, nuovaCategoria);
+		
+		Ordine result = ordineService.trovaOrdineSpedizionePiuRecenteRelativoACategoria(nuovaCategoria);
+		if (result == null)
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testOrdinePiuRecenteConArticoliDiCategoria : PASS");
+	}
+
+	private static void testTuttiCodiciDiCategorieDegliOrdiniDelMeseDi(CategoriaService categoriaService,
+			OrdineService ordineService) throws Exception {
+		System.out.println("\n.....inizio testTuttiCodiciDiCategorieDegliOrdiniDelMeseDi");
+		List<Categoria> tutteCategorieSuDB = categoriaService.listAll();
+		List<Ordine> tuttiOrdiniSuDB = ordineService.listAll();
+		if (tuttiOrdiniSuDB.isEmpty() || tutteCategorieSuDB.isEmpty())
+			throw new RuntimeException("FAIL : una o piu' tabelle del DB sono vuote.");
+		List<String> result = categoriaService.tuttiCodiciDiCategorieDegliOrdiniEffettuatiNelMeseDi(new Date());
+		if (result.size() != 1)
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testTuttiCodiciDiCategorieDegliOrdiniDelMeseDi : PASS");
+	}
+
+	private static void testPrezzoTotaleArticoliOrdiniPer(OrdineService ordineService, ArticoloService articoloService)
+			throws Exception {
+		System.out.println("\n.....inizio testPrezzoTotaleArticoliOrdiniPer");
+		Ordine nuovoOrdine = new Ordine("Mario", "Via Catania", new Date(),
+				new SimpleDateFormat("dd-mm-yyyy").parse("30-10-2022"));
+		ordineService.inserisciNuovo(nuovoOrdine);
+		
+		Articolo nuovoArticolo = new Articolo("Reflex", "abc", 600, new Date());
+		nuovoArticolo.setOrdine(nuovoOrdine);
+		articoloService.inserisciNuovo(nuovoArticolo);
+		
+		Long result = ordineService.caricaPrezzoTotaleArticoliOrdiniPer("Mario");
+		if (result != 600)
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		
+		articoloService.rimuovi(nuovoArticolo.getId());
+		ordineService.rimuovi(nuovoOrdine.getId());
+		System.out.println("..... fine testPrezzoTotaleArticoliOrdiniPer : PASS");
+	}
+
+	private static void testTuttiIndirizziOrdiniConArticoliConNumeroSerialeCome(OrdineService ordineService,
+			ArticoloService articoloService) throws Exception {
+		System.out.println("\n.....inizio testListaIndirizziOrdiniConArticoliConNumeroSerialeCome");
+		
+		Ordine nuovoOrdine = new Ordine("Paolo", "Via Catania", new Date(),
+				new SimpleDateFormat("dd-mm-yyyy").parse("30-10-2022"));
+		ordineService.inserisciNuovo(nuovoOrdine);
+		
+		Articolo nuovoArticolo = new Articolo("Reflex", "glkm", 600, new Date());
+		nuovoArticolo.setOrdine(nuovoOrdine);
+		articoloService.inserisciNuovo(nuovoArticolo);
+		
+		List<String> result = ordineService.tuttiIndirizziOrdiniArticoliConNumeroSerialeCome("lk");
+		if (result.isEmpty())
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testListaIndirizziOrdiniConArticoliConNumeroSerialeCome : PASS");
+	}
+
+	private static void testListaArticoliOrdiniConErrori(ArticoloService articoloService, OrdineService ordineService)
+			throws Exception {
+		System.out.println("\n.....inizio testListaArticoliOrdiniConErrori");
+		ordineService.inserisciNuovo(
+				new Ordine("Franco", "via Umberto 15", new SimpleDateFormat("dd-MM-yyyy").parse("05-11-2021"),
+						new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020")));
+		Articolo nuovoArticolo = new Articolo("farina", "FRN8JNB", 4, new Date());
+		nuovoArticolo.setOrdine(ordineService.listAll().get(0));
+		articoloService.inserisciNuovo(nuovoArticolo);
+		List<Articolo> result = articoloService.tuttiArticoliDiOrdiniConProblemi();
+		if (result.isEmpty())
+			throw new RuntimeException("FAIL : la ricerca non ha dato i risultati attesi.");
+		System.out.println("..... fine testListaArticoliOrdiniConErrori : PASS");
 	}
 
 }

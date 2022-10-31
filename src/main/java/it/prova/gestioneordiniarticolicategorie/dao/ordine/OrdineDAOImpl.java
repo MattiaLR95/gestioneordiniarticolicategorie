@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineDAOImpl implements OrdineDAO {
@@ -57,5 +58,33 @@ public class OrdineDAOImpl implements OrdineDAO {
 		query.setParameter("idOrdine", id);
 		return query.getResultList().stream().findFirst().orElse(null);
 	}
+
+	@Override
+	public List<Ordine> findOrdiniInUnaDeterminataCategoria(Categoria input) {
+		return entityManager
+				.createQuery("select o from Ordine o left join o.articoli a left join a.categorie c where c.id=?1",
+						Ordine.class)
+				.setParameter(1, input.getId()).getResultList();
+	}
+	
+	@Override
+	public Ordine findOrdineSpedizionePiuRecenteRelativoACategoria(Categoria categoria)throws Exception{
+		return entityManager.createQuery("select o from Ordine o inner join o.articoli a inner join a.categorie c where c.id=?1 order by o.dataSpedizione desc", Ordine.class).setParameter(1, categoria.getId()).getResultStream().findFirst().orElse(null);
+	}
+	
+	@Override
+	public Long getPrezzoTotaleArticoliOrdiniPer(String destinatario)throws Exception {
+		if(destinatario == null || destinatario.isBlank())
+			throw new Exception("Impossibile effettuare la ricerca, input non valido.");
+		return entityManager.createQuery("select sum(a.prezzoSingolo) from Ordine o inner join o.articoli a where o.nomeDestinatario like ?1 ", Long.class).setParameter(1, destinatario).getResultStream().findFirst().orElse(null);
+	}
+	
+	@Override
+	public List<String> allIndirizziOrdiniArticoliConNumeroSerialeCome(String parteDelSeriale)throws Exception{
+		if(parteDelSeriale == null || parteDelSeriale.isEmpty())
+			throw new Exception("Impossibile effettuare la ricerca, input non valido.");
+		return entityManager.createQuery("select o.indirizzoSpedizione from Ordine o inner join o.articoli a where a.numeroSeriale Like ?1",String.class).setParameter(1, "%"+parteDelSeriale+"%").getResultList();
+	}
+
 
 }

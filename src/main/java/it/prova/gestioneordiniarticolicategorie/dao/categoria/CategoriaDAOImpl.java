@@ -1,11 +1,13 @@
 package it.prova.gestioneordiniarticolicategorie.dao.categoria;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class CategoriaDAOImpl implements CategoriaDAO {
 
@@ -62,6 +64,19 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 	public void deleteCategoriaFromJoinTable(Long idCategoria) throws Exception {
 		entityManager.createNativeQuery("delete from articolo_categoria where categoria_id = ?1")
 				.setParameter(1, idCategoria).executeUpdate();
+	}
+	
+	@Override
+	public List<Categoria> allCategorieInOrdine(Ordine ordine) throws Exception{
+		if(ordine == null || ordine.getId() == null || ordine .getId() < 1)
+			throw new Exception("ERRORE! Input inserito non valido");
+		
+		return entityManager.createQuery("select distinct c from Categoria c inner join c.articoli a where a.ordine.id=?1",Categoria.class).setParameter(1, ordine.getId()).getResultList();
+	}
+	
+	@Override
+	public List<String> allCodiciDiCategorieDegliOrdiniEffettuatiNelMeseDi(Date dataDiRiferimento)throws Exception{
+		return entityManager.createQuery("select distinct c.codice from Ordine o inner join o.articoli a inner join a.categorie c where month(o.dataSpedizione)=month(?1) and year(o.dataSpedizione)=year(?1)", String.class).setParameter(1,new java.sql.Date(dataDiRiferimento.getTime())).getResultList();
 	}
 
 }

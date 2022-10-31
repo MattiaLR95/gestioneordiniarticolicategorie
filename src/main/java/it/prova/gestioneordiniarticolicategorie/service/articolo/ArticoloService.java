@@ -26,4 +26,8 @@ public interface ArticoloService {
 	public void setArticoloDAO(ArticoloDAO articoloDAO);
 
 	void rimuoviArticoloDaJoinTable(Long idArticolo) throws Exception;
+
+	public Long sommaPrezzoArticoliDiCategoria(Categoria categoria) throws Exception;
+	
+	public List<Articolo> tuttiArticoliDiOrdiniConProblemi() throws Exception;
 }
